@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom"; // Import useLocation
 import { getAuth, onAuthStateChanged } from "firebase/auth";

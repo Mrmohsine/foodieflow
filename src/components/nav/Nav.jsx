@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Menu, X, ShoppingCart } from "lucide-react"; // Icons from lucide-react
-import { Link } from "react-router-dom"; // Import Link from react-router-dom
+import { Menu, X } from "lucide-react";
+import { NavLink, Link } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import { logout, auth } from "../../firebase/firebase-auth";
-import { useUser } from '../context/users';  // Custom hook to fetch one user by uid
+import { useFirestoreUser } from '../context/users';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const { firebaseUser, firestoreUser } = useFirestoreUser();
 
   // Listen for auth state changes.
   useEffect(() => {
@@ -17,15 +18,63 @@ export default function Navbar() {
     return unsubscribe;
   }, []);
 
-  // Only fetch Firestore user data when we have an authenticated user
-  const firestoreUser = user ? useUser(user.uid) : null;
+  // Map of roles to nav items.
+  const roleBasedNavItems = {
+    admin: ['kitchen', 'reception', 'supplier', 'owner'],
+    kitchen: ['kitchen'],
+    reception: ['reception'],
+    supplier: ['supplier'],
+  };
+
+  // Utility to capitalize the first letter.
+  const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+  // Function to determine the className for active or inactive links.
+  // When active, the link receives the same design as the Menu.
+  const linkClassName = ({ isActive }) =>
+    `px-3 py-1 rounded-full transition-colors ${
+      isActive
+        ? "bg-orange-50 text-orange-600 hover:bg-orange-100 focus:outline-none"
+        : "text-gray-700 hover:text-orange-600"
+    }`;
+
+  const renderNavItems = (role) => {
+    // Retrieve nav items for the given role; if none exists, default to an empty array.
+    const items = roleBasedNavItems[role] || [];
+    return (
+      <>
+        {user && (
+          <div className="hidden md:flex space-x-8 items-center ml-10">
+            {/* Menu link always visible */}
+            <NavLink
+              to="/menu"
+              className={linkClassName}
+              end
+            >
+              Menu
+            </NavLink>
+            {/* Map over the nav items specific to the user's role */}
+            {items.map((item) => (
+              <NavLink
+                key={item}
+                to={`/${item}`}
+                className={linkClassName}
+              >
+                {capitalize(item)}
+              </NavLink>
+            ))}
+          </div>
+        )}
+      </>
+    );
+  };
 
   const toggleMenu = () => setIsOpen((prev) => !prev);
 
   const handleLogout = async () => {
     try {
       await logout();
-      setIsOpen(false); // Close mobile menu on logout
+      setIsOpen(false);
     } catch (error) {
       alert("Error signing out: " + error.message);
     }
@@ -43,54 +92,17 @@ export default function Navbar() {
           </div>
 
           {/* Center Section: Navigation Links (Desktop) */}
-          <div className="hidden md:flex space-x-8 items-center ml-10">
-            <Link
-              to="/menu"
-              className="bg-orange-50 text-orange-600 px-3 py-1 rounded-full hover:bg-orange-100 focus:outline-none"
-            >
-              Menu
-            </Link>
-            <Link
-              to="/kitchen"
-              className="text-gray-700 hover:text-orange-600 transition-colors"
-            >
-              Kitchen
-            </Link>
-            <Link
-              to="/reception"
-              className="text-gray-700 hover:text-orange-600 transition-colors"
-            >
-              Reception
-            </Link>
-            <Link
-              to="/owner"
-              className="text-gray-700 hover:text-orange-600 transition-colors"
-            >
-              Owner
-            </Link>
-            <Link
-              to="/supplier"
-              className="text-gray-700 hover:text-orange-600 transition-colors"
-            >
-              Supplier
-            </Link>
-          </div>
+          {renderNavItems(firestoreUser?.role)}
 
-          {/* Right Section: Auth and Cart (Desktop) */}
+          {/* Right Section: Auth */}
           <div className="hidden md:flex space-x-4 items-center">
             {user ? (
-              <>
-                <button
-                  onClick={handleLogout}
-                  className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 transition-colors"
-                >
-                  Sign Out
-                </button>
-                {/* Use optional chaining in case firestoreUser is still loading */}
-                <p>
-                  hi {firestoreUser?.fullName} u r {firestoreUser?.role}
-                </p>
-              </>
+              <button
+                onClick={handleLogout}
+                className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 transition-colors"
+              >
+                Sign Out
+              </button>
             ) : (
               <>
                 <Link
@@ -107,12 +119,6 @@ export default function Navbar() {
                 </Link>
               </>
             )}
-            <Link
-              to="/cart"
-              className="relative text-gray-700 hover:text-orange-600 transition-colors"
-            >
-              <ShoppingCart className="h-5 w-5" />
-            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -132,41 +138,23 @@ export default function Navbar() {
       {isOpen && (
         <div className="md:hidden border-t border-gray-200">
           <div className="space-y-1 px-2 py-3">
-            <Link
+            <NavLink
               to="/menu"
-              className="block w-full text-left bg-orange-50 text-orange-600 px-3 py-2 rounded-full hover:bg-orange-100 focus:outline-none"
-              onClick={() => setIsOpen(false)}
+              className={linkClassName}
+              onClick={() => setIsOpen(false)}  
             >
               Menu
-            </Link>
-            <Link
-              to="/kitchen"
-              className="block px-3 py-2 text-gray-700 hover:text-orange-600"
-              onClick={() => setIsOpen(false)}
-            >
-              Kitchen
-            </Link>
-            <Link
-              to="/reception"
-              className="block px-3 py-2 text-gray-700 hover:text-orange-600"
-              onClick={() => setIsOpen(false)}
-            >
-              Reception
-            </Link>
-            <Link
-              to="/owner"
-              className="block px-3 py-2 text-gray-700 hover:text-orange-600"
-              onClick={() => setIsOpen(false)}
-            >
-              Owner
-            </Link>
-            <Link
-              to="/supplier"
-              className="block px-3 py-2 text-gray-700 hover:text-orange-600"
-              onClick={() => setIsOpen(false)}
-            >
-              Supplier
-            </Link>
+            </NavLink>
+            {["kitchen", "reception", "owner", "supplier"].map((item) => (
+              <NavLink
+                key={item}
+                to={`/${item}`}
+                className={linkClassName}
+                onClick={() => setIsOpen(false)}
+              >
+                {capitalize(item)}
+              </NavLink>
+            ))}
           </div>
           <div className="space-y-1 px-2 py-3 border-t border-gray-200">
             {user ? (
@@ -194,14 +182,6 @@ export default function Navbar() {
                 </Link>
               </>
             )}
-            <Link
-              to="/cart"
-              className="block px-3 py-2 flex items-center text-gray-700 hover:text-orange-600 transition-colors relative"
-              onClick={() => setIsOpen(false)}
-            >
-              <ShoppingCart className="h-5 w-5 mr-2" />
-              Cart
-            </Link>
           </div>
         </div>
       )}

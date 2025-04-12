@@ -5,8 +5,11 @@ import {
   signOut, 
   updateProfile 
 } from "firebase/auth";
-import { db, app } from "./firebase-config"; 
+
+import { firebaseConfig, db, app } from "./firebase-config"; 
 import { doc, setDoc } from "firebase/firestore";
+import { initializeApp,deleteApp } from "firebase/app";
+
 
 const auth = getAuth(app);
 
@@ -48,6 +51,29 @@ export const logout = async () => {
   } catch (error) {
     console.error("Sign Out Error: ", error);
     throw error;
+  }
+};
+export const signUpWithoutLogin = async (email, password, fullName, role, admin_id) => {
+  const tempApp = initializeApp(firebaseConfig, "Secondary");
+  const tempAuth = getAuth(tempApp);
+  try {
+    const userCredential = await createUserWithEmailAndPassword(tempAuth, email, password);
+
+    await setDoc(doc(db, "users", userCredential.user.uid), {
+      email,
+      fullName,
+      role,
+      admin_id,
+      createdAt: new Date().toISOString(),
+    });
+
+    return userCredential.user;
+  } catch (error) {
+    console.error("Error during signUpWithoutLogin:", error);
+    throw error;
+  } finally {
+    await tempAuth.signOut();
+    await deleteApp(tempApp);
   }
 };
 

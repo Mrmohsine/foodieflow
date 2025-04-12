@@ -1,52 +1,68 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom"; // Use react-router-dom for web routing
+import { Routes, Route, redirect, useNavigate,Navigate } from "react-router-dom";
 import AuthApp from "./components/auth/AuthApp";
 import Nav from "./components/nav/Nav";
 import Error from "./components/error/Error";
 import Menu from "./components/menu/Menu";
-import { useUser } from "./components/context/users"; // Custom hook to get one user by uid
+import Owner from "./components/owner/Owner";
+import { useUser } from "./components/context/users";
 import { auth } from "./firebase/firebase-auth";
 import { useAuthState } from "react-firebase-hooks/auth";
+import ProtectedRoute from "./components/pages/ProtectedRoute";
+import LoadingScreen from "./components/pages/LoadingScreen";
+import RouteTransitionWrapper from "./components/pages/RouteTransitionWrapper";
+import Users_created from './components/Owner_dash_items/Users_created';
+import Products_created from "./components/Owner_dash_items/Products_created";
 
-function App() {
-  // Get the authenticated Firebase user (if any)
-  const [firebaseUser] = useAuthState(auth);
-  
-  // If a user is authenticated, fetch additional data from Firestore
-  const firestoreUser = firebaseUser ? useUser(firebaseUser.uid) : null;
+
+
+export default function App() {
+  const [firebaseUser, loadingAuth] = useAuthState(auth);
+  const firestoreUser = useUser(firebaseUser?.uid);
+
+  const isInitialLoading = loadingAuth || (firebaseUser && !firestoreUser);
+
+  if (isInitialLoading) return <LoadingScreen />;
 
   return (
     <>
-      {/* Optionally display a simple welcome message */}
-      <p>
-        Hi {firestoreUser?.fullName} — your role is {firestoreUser?.role}
-      </p>
-      
-      {/* Navigation bar */}
+    <p>hi you are {firestoreUser?.role}</p>
       <Nav />
 
-      {/* Define application routes */}
-      <Routes>
-        <Route path="/" element={<Menu />} />
-        {/* Only allow access to /login if the Firestore user has role "admin" */}
-        <Route
-          path="/path_to_check"
-          element={
-            firestoreUser && firestoreUser.role === "admin" ? (
-              <AuthApp />
-            ) : (
-              <Error />
-            )
-          }
-        />
-        {/* Sign-up route */}
-        <Route path="/login" element={<AuthApp />} />
-        <Route path="/signup" element={<AuthApp />} />
-        {/* Catch-all route for undefined paths */}
-        <Route path="*" element={<Error />} />
-      </Routes>
-    </>
-  );
-}
+      <RouteTransitionWrapper>
+        <Routes>
+          <Route path="/login" element={<AuthApp />} />
+          <Route path="/signup" element={<AuthApp />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+              {firestoreUser?.role === "admin" ? (
+                <Navigate to="./owner" />
+              ) : firestoreUser?.role === "client" ? (
+                <Navigate to="./menu" />
+              ) : (
+                <Error />
+              )}                
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/owner"
+            element={
+              <ProtectedRoute>
+                {firestoreUser?.role === "admin" ? <Owner /> : <Error />}
+              </ProtectedRoute>
+            }
+          >
+            <Route path="users" element={<Users_created />} />
+            <Route path="menu" element={<Products_created />} />
+          </Route>
 
-export default App;
+          <Route path="/menu" element={<Menu />} />
+          <Route path="*" element={<Error />} />
+        </Routes>
+      </RouteTransitionWrapper>
+    </>
+  )
+}
