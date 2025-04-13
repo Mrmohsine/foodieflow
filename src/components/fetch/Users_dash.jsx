@@ -1,11 +1,16 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useUserByAdmin, useFirestoreUser } from '../context/users';
+import { updateProduct , deleteProduct} from '../../firebase/firebase-collections'; 
+import {  useFirestoreUser , updateUser, deleteUser} from '../../User_crud/users_crud';
+import { useUsersByAdmin } from '../context/usersByAdmin';
+
 
 export default function Users_dash() {
   const { firebaseUser } = useFirestoreUser();
-  const users = useUserByAdmin(firebaseUser?.uid);
+  const { users, count, setCount, fetchUsers } = useUsersByAdmin();
 
+  
+  
   // Motion variants for the table rows.
   const rowVariants = {
     hidden: { opacity: 0, y: 10 },
@@ -20,6 +25,7 @@ export default function Users_dash() {
 
   // Handlers for actions.
   const handleEdit = (userId) => {
+    // updateUser(userId, {});
     // Add your edit logic here.
     console.log('Edit user', userId);
   };
@@ -30,11 +36,14 @@ export default function Users_dash() {
   };
 
   const handleDelete = (userId) => {
-    // Add your delete logic here.
+    // Call the deleteUser function from the context or directly.
     console.log('Delete user', userId);
+    deleteUser(userId, count, setCount);
   };
 
   return (
+    <>
+
     <div className="min-h-screen ">
       <div className="max-w-full mx-auto rounded-lg overflow-hidden shadow-lg ">
         <div className="overflow-x-auto">
@@ -111,5 +120,7 @@ export default function Users_dash() {
         </div>
       </div>
     </div>
+    </>
+    
   );
 }

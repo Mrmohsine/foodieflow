@@ -3,7 +3,7 @@ import { Menu, X } from "lucide-react";
 import { NavLink, Link } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import { logout, auth } from "../../firebase/firebase-auth";
-import { useFirestoreUser } from '../context/users';
+import { useFirestoreUser } from '../../User_crud/users_crud';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -133,7 +133,7 @@ export default function Navbar() {
             >
               Menu
             </NavLink>
-            {["kitchen", "reception", "owner", "supplier"].map((item) => (
+            {["kitchen", "reception", "owner/menu", "supplier"].map((item) => (
               <NavLink
                 key={item}
                 to={`/${item}`}

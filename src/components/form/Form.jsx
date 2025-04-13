@@ -4,13 +4,16 @@ import { signUpWithoutLogin, signIn,  auth } from "../../firebase/firebase-auth"
 import { option } from "framer-motion/client";
 import { Listbox } from "@headlessui/react";
 import { Check, ChevronDown } from "lucide-react";
-import { useUser ,useFirestoreUser} from "../context/users";
+// import { useUser ,useFirestoreUser} from "../context/users";
+import { useFirestoreUser } from "../../User_crud/users_crud";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useNavigate } from "react-router";
+import { useUsersByAdmin } from '../context/usersByAdmin';
 
 
 export default function AnimatedForm() {
   const [refreshKey, setRefreshKey] = useState(true);
+  const {user,setCount,count} = useUsersByAdmin();
   const navigate = useNavigate();
     const { firebaseUser, firestoreUser } = useFirestoreUser();
     const [role,setrole] = useState();
@@ -30,6 +33,7 @@ export default function AnimatedForm() {
         if (isLoginMode) {
             await signUpWithoutLogin(credentials.email, credentials.password, credentials.fullName, credentials.role,firebaseUser.uid);
             // await signUp(credentials.email, credentials.password, credentials.fullName,credentials.role);
+            setCount(count + 1);
             navigate('/owner/users');
           }
     } catch (error) {

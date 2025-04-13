@@ -1,13 +1,15 @@
-import React from 'react'
+import React ,{useState} from 'react'
 import Users_dash from '../fetch/Users_dash';
 import { useNavigate } from 'react-router';
+import Form from '../form/Form';
 
 
 export default function Users_created() {
   const navigate = useNavigate();
+  const [isopen, setIsOpen] = useState('hidden');
   const handleClick = () => {
     // Logic to handle the click event for adding a user
-    navigate('/owner/form');
+    setIsOpen(isopen === 'hidden' ? 'block' : 'hidden');
   }
   return (
     <div className='pt-2 mx-auto w-[85%]'>
@@ -20,7 +22,9 @@ export default function Users_created() {
           Add User
         </button>
       </div>
-      
+      <div className={`${isopen} z-10`} >
+        <Form />
+      </div>
       {/* Dashboard / Users list section */}
       <Users_dash />
     </div>
