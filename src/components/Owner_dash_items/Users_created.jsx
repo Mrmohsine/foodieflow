@@ -6,11 +6,12 @@ import Form from '../form/Form';
 
 export default function Users_created() {
   const navigate = useNavigate();
-  const [isopen, setIsOpen] = useState('hidden');
+  const [isopen, setIsOpen] = useState(false);
   const handleClick = () => {
     // Logic to handle the click event for adding a user
-    setIsOpen(isopen === 'hidden' ? 'block' : 'hidden');
+    setIsOpen(!isopen);
   }
+  
   return (
     <div className='pt-2 mx-auto w-[85%]'>
       {/* Header section with title and Add User button */}
@@ -22,9 +23,8 @@ export default function Users_created() {
           Add User
         </button>
       </div>
-      <div className={`${isopen} z-10`} >
-        <Form />
-      </div>
+     {isopen ? <Form setIsOpen ={setIsOpen}/> : <></>}
+      
       {/* Dashboard / Users list section */}
       <Users_dash />
     </div>

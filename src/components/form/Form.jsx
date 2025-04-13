@@ -9,9 +9,9 @@ import { useFirestoreUser } from "../../User_crud/users_crud";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useNavigate } from "react-router";
 import { useUsersByAdmin } from '../context/usersByAdmin';
+import { X } from "lucide-react";
 
-
-export default function AnimatedForm() {
+export default function AnimatedForm({ setIsOpen }) {
   const [refreshKey, setRefreshKey] = useState(true);
   const {user,setCount,count} = useUsersByAdmin();
   const navigate = useNavigate();
@@ -34,7 +34,7 @@ export default function AnimatedForm() {
             await signUpWithoutLogin(credentials.email, credentials.password, credentials.fullName, credentials.role,firebaseUser.uid);
             // await signUp(credentials.email, credentials.password, credentials.fullName,credentials.role);
             setCount(count + 1);
-            navigate('/owner/users');
+            setIsOpen(false);
           }
     } catch (error) {
         alert(error.message);
@@ -42,31 +42,33 @@ export default function AnimatedForm() {
     };
   return (
     <>
-    <h1 className="text-3xl font-bold text-orange-500  rounded-lg w-full mx-auto text-start  p-4 ">
-       Create Users
-      </h1>
     <motion.div
-        className="min-h-[50%] flex items-center justify-center"
+        className="min-h-[50%] flex items-center justify-center absolute w-full top-0 left-0 h-full"
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: 0.2 }}
+        style={{ backgroundColor : 'transparent',backdropFilter: 'blur(7px)' }}
         >
         <motion.div
-            className="bg-white p-6 max-w-md w-full shadow-md rounded mx-4"
+            className="bg-white p-6 max-w-md w-full rounded mx-4 shadow-md shadow-orange-500 "
             initial={{ scale: 0.9 }}
             animate={{ scale: 1 }}
-            transition={{ duration: 0.4, delay: 0.3 }}
+            transition={{ duration: 0.2 }}
         >
-        <h1 className="text-3xl font-bold mb-6 text-center text-orange-600">
+       <div className="flex flex-row items-center justify-between mb-6 ">
+       <h1 className="text-3xl font-bold text-center text-orange-600">
           Bienvenue
         </h1>
-
+        <button onClick={()=> setIsOpen(false)}>
+        <X className="w-6 h-6 text-gray-500" />
+        </button>
+       </div>
         <motion.form
           onSubmit={handleSubmit}
           className="space-y-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.5, duration: 0.5 }}
+          transition={{ delay: 0.1}}
         >
           <>
             <input
@@ -108,7 +110,7 @@ export default function AnimatedForm() {
               <div className="relative w-full">
                 <Listbox.Button className="relative w-full cursor-pointer rounded border border-orange-300 bg-white py-2 pl-3 pr-10 text-left text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-sm">
                   <span className="block truncate">
-                    {credentials.role ? credentials.role.charAt(0).toUpperCase() + credentials.role.slice(1) : "Select a role"}
+                    {credentials.role ? credentials.role.charAt(0).toUpperCase() + credentials.role.slice(1) : credentials.role = roles[0]}
                   </span>
                   <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                     <ChevronDown className="h-4 w-4 text-gray-400" aria-hidden="true" />
@@ -145,7 +147,7 @@ export default function AnimatedForm() {
           <button
             type="submit"
             className="w-full bg-orange-500 text-white py-2 px-4 rounded hover:bg-orange-600"
-          >
+          > 
             Créer
           </button>
         </motion.form>
