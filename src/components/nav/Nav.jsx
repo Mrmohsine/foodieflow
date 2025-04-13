@@ -30,7 +30,6 @@ export default function Navbar() {
   const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
   // Function to determine the className for active or inactive links.
-  // When active, the link receives the same design as the Menu.
   const linkClassName = ({ isActive }) =>
     `px-3 py-1 rounded-full transition-colors ${
       isActive
@@ -39,27 +38,16 @@ export default function Navbar() {
     }`;
 
   const renderNavItems = (role) => {
-    // Retrieve nav items for the given role; if none exists, default to an empty array.
     const items = roleBasedNavItems[role] || [];
     return (
       <>
         {user && (
           <div className="hidden md:flex space-x-8 items-center ml-10">
-            {/* Menu link always visible */}
-            <NavLink
-              to="/menu"
-              className={linkClassName}
-              end
-            >
+            <NavLink to="/menu" className={linkClassName} end>
               Menu
             </NavLink>
-            {/* Map over the nav items specific to the user's role */}
             {items.map((item) => (
-              <NavLink
-                key={item}
-                to={`/${item}`}
-                className={linkClassName}
-              >
+              <NavLink key={item} to={`/${item}`} className={linkClassName}>
                 {capitalize(item)}
               </NavLink>
             ))}
@@ -81,7 +69,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-white border-b border-gray-200">
+    <nav className="fixed top-0 w-full z-50 bg-white border-b border-gray-200 shadow-sm">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Left Section: Brand */}
@@ -101,7 +89,7 @@ export default function Navbar() {
                 onClick={handleLogout}
                 className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 transition-colors"
               >
-                Sign Out
+                Sign Outs
               </button>
             ) : (
               <>
@@ -141,7 +129,7 @@ export default function Navbar() {
             <NavLink
               to="/menu"
               className={linkClassName}
-              onClick={() => setIsOpen(false)}  
+              onClick={() => setIsOpen(false)}
             >
               Menu
             </NavLink>

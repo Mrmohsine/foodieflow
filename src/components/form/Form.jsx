@@ -6,11 +6,12 @@ import { Listbox } from "@headlessui/react";
 import { Check, ChevronDown } from "lucide-react";
 import { useUser ,useFirestoreUser} from "../context/users";
 import { useAuthState } from "react-firebase-hooks/auth";
+import { useNavigate } from "react-router";
 
 
 export default function AnimatedForm() {
   const [refreshKey, setRefreshKey] = useState(true);
-
+  const navigate = useNavigate();
     const { firebaseUser, firestoreUser } = useFirestoreUser();
     const [role,setrole] = useState();
     const [credentials, setCredentials] = useState({ role: "", fullName: "", email: "", password: "" });
@@ -22,18 +23,14 @@ export default function AnimatedForm() {
         [e.target.name]: e.target.value,
       });
     };
-    const handleClick = (e) => {
-      e.preventDefault();
-      console.log(location.pathname);
-      setRefreshKey(!refreshKey);
 
-    }
     const handleSubmit = async (e) => {
     e.preventDefault();
     try {
         if (isLoginMode) {
             await signUpWithoutLogin(credentials.email, credentials.password, credentials.fullName, credentials.role,firebaseUser.uid);
             // await signUp(credentials.email, credentials.password, credentials.fullName,credentials.role);
+            navigate('/owner/users');
           }
     } catch (error) {
         alert(error.message);
@@ -41,7 +38,9 @@ export default function AnimatedForm() {
     };
   return (
     <>
-    <button onClick={handleClick}>test</button>
+    <h1 className="text-3xl font-bold text-orange-500  rounded-lg w-full mx-auto text-start  p-4 ">
+       Create Users
+      </h1>
     <motion.div
         className="min-h-[50%] flex items-center justify-center"
         initial={{ opacity: 0, y: -50 }}

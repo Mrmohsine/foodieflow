@@ -17,7 +17,7 @@ const navItems = [
 export default function Owner() {
     const [isHovered, setIsHovered] = useState(false);
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 pt-5">
       {/* Sidebar */}
       <motion.div
       initial={{ width: '4rem' }}
@@ -26,6 +26,8 @@ export default function Owner() {
       onMouseLeave={() => setIsHovered(false)}
       className="bg-foodie-orange text-white transition-all duration-300 flex flex-col py-6 px-2 shadow-lg"
     >
+      <div className='fixed'>
+
       {navItems.map((item, index) => (
         <NavLink
           to={item.path}
@@ -45,11 +47,12 @@ export default function Owner() {
         )}
         </NavLink>
       ))}
+      </div>
     </motion.div>
 
       {/* Content area */}
       <div className="flex-1 flex flex-col m-6">
-        <h1 className="text-3xl font-bold text-foodie-orange mx-auto">Owner Dashboard</h1>
+      
         <Outlet /> 
       </div>
     </div>

@@ -13,6 +13,8 @@ import LoadingScreen from "./components/pages/LoadingScreen";
 import RouteTransitionWrapper from "./components/pages/RouteTransitionWrapper";
 import Users_created from './components/Owner_dash_items/Users_created';
 import Products_created from "./components/Owner_dash_items/Products_created";
+import Form from './components/form/Form';
+
 
 
 
@@ -57,6 +59,7 @@ export default function App() {
           >
             <Route path="users" element={<Users_created />} />
             <Route path="menu" element={<Products_created />} />
+            <Route path="form" element={<Form />} />
           </Route>
 
           <Route path="/menu" element={<Menu />} />
