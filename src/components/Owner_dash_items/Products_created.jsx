@@ -1,30 +1,50 @@
-import React from 'react'
-import { addProduct } from "../../firebase/firebase-collections";
-
-
+import React, { useState } from 'react';
+import { addProduct, updateProduct, deleteProduct } from "../../firebase/firebase-collections";
+import Products from '../form/Products';
 
 export default function Products_created() {
-    const handleAddProduct = async () => {
-        const newProduct = {
-          name: "Apple Juice",
-          price: 9.99,
-          stock: 100,
-          category: "Drinks",
-        };
-      
-        try {
-          const id = await addProduct(newProduct);
-          console.log("Product added with ID:", id);
-        } catch {
-          alert("Failed to add product.");
-        }
-      };
+  const [productId, setProductId] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const cardStyle = {
+    backgroundColor: '#fff',
+    border: '2px solid orange',
+    borderRadius: '8px',
+    padding: '20px',
+    width: '300px',
+    margin: '20px auto',
+    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)'
+  };
+
+  const buttonStyle = {
+    backgroundColor: 'orange',
+    color: 'white',
+    border: 'none',
+    padding: '10px 15px',
+    margin: '5px',
+    borderRadius: '4px',
+    cursor: 'pointer'
+  };
+
+  const handleAddProduct = async () => {
+    setIsOpen(!isOpen);
+  };
+
+  const handleUpdateProduct = async () => {
+    
+  };
+
+  const handleDeleteProduct = async () => {
+    
+  };
+
   return (
     <>
-    <div>Products_created</div>
-    <button onClick={handleAddProduct}>creer product</button>
-    <button onClick={handleAddProduct}>modifie</button>
-    <button onClick={handleAddProduct}>supprime</button>
+    <div className='flex flex-row justify-around items-center p-4'>
+      <h1 className="text-3xl font-bold text-orange-500 ">Products Management</h1>
+      <button onClick={handleAddProduct} style={buttonStyle}>Add Product</button>
+    </div>
+    {isOpen ? <Products setIsOpen={setIsOpen}/> : <></>}
     </>
-  )
+  );
 }

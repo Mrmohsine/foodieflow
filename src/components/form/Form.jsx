@@ -60,7 +60,7 @@ export default function AnimatedForm({ setIsOpen }) {
           Bienvenue
         </h1>
         <button onClick={()=> setIsOpen(false)}>
-        <X className="w-6 h-6 text-gray-500" />
+        <X className="w-6 h-6 text-gray-500 cursor-pointer" />
         </button>
        </div>
         <motion.form

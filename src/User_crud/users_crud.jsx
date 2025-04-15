@@ -60,3 +60,4 @@ export const useFirestoreUser = () => {
     const firestoreUser = useUser(firebaseUser?.uid);
     return { firebaseUser, firestoreUser };
   };
+

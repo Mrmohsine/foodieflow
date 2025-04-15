@@ -1,9 +1,16 @@
 import { db } from "./firebase-config"; // `db` must be initialized Firestore
-import { addDoc, collection,doc ,deleteDoc } from "firebase/firestore";
+import { addDoc, collection,doc ,deleteDoc,updateDoc,serverTimestamp } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
-export const addProduct = async (productData) => {
+// Function to add a product document to Firestore with the uploaded image URL
+export const addProduct = async (productData, imageUrl ) => {
   try {
-    const docRef = await addDoc(collection(db, "products"), productData);
+    // Upload the image file and get the download URL
+    // const imageUrl = await uploadProductImage(imageFile);
+    // Merge the product data with the image URL
+
+    const payload = { ...productData, img: imageUrl, createdAt: serverTimestamp() };  
+    const docRef = await addDoc(collection(db, "products"), payload);
     return docRef.id; 
   } catch (error) {
     console.error("Error adding product: ", error);

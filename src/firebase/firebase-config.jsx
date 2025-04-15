@@ -11,6 +11,7 @@ import {
   deleteDoc
 } from "firebase/firestore";
 
+
 // Firebase config from env
 export const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
