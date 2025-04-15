@@ -3,13 +3,13 @@ import { addDoc, collection,doc ,deleteDoc,updateDoc,serverTimestamp } from "fir
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 // Function to add a product document to Firestore with the uploaded image URL
-export const addProduct = async (productData, imageUrl ) => {
+export const addProduct = async (productData, imageUrl ,admin_id ) => {
   try {
     // Upload the image file and get the download URL
     // const imageUrl = await uploadProductImage(imageFile);
     // Merge the product data with the image URL
 
-    const payload = { ...productData, img: imageUrl, createdAt: serverTimestamp() };  
+    const payload = { ...productData, img: imageUrl, admin_id : admin_id ,createdAt: serverTimestamp() };  
     const docRef = await addDoc(collection(db, "products"), payload);
     return docRef.id; 
   } catch (error) {

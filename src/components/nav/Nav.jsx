@@ -47,7 +47,7 @@ export default function Navbar() {
               Menu
             </NavLink>
             {items.map((item) => (
-              <NavLink key={item} to={`/${item}`} className={linkClassName}>
+              <NavLink key={item} to={`/${item === 'owner' ? `${item}/menu` : item}`} className={linkClassName}>
                 {capitalize(item)}
               </NavLink>
             ))}
@@ -133,10 +133,10 @@ export default function Navbar() {
             >
               Menu
             </NavLink>
-            {["kitchen", "reception", "owner/menu", "supplier"].map((item) => (
+            {["kitchen", "reception", "owner", "supplier"].map((item) => (
               <NavLink
                 key={item}
-                to={`/${item}`}
+                to={`/${item === 'owner' ? `${item}/menu` : item}`}
                 className={linkClassName}
                 onClick={() => setIsOpen(false)}
               >

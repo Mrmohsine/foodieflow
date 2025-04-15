@@ -40,7 +40,7 @@ export default function App() {
             element={
               <ProtectedRoute>
               {firestoreUser?.role === "admin" ? (
-                <Navigate to="./owner" />
+                <Navigate to="./owner/menu" />
               ) : firestoreUser?.role === "client" ? (
                 <Navigate to="./menu" />
               ) : (

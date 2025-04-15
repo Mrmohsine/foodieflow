@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { addProduct, updateProduct, deleteProduct } from "../../firebase/firebase-collections";
 import Products from '../form/Products';
+import ProductsShow from './ProductsShow';
 
 export default function Products_created() {
   const [productId, setProductId] = useState(null);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
 
   const cardStyle = {
     backgroundColor: '#fff',
@@ -45,6 +46,7 @@ export default function Products_created() {
       <button onClick={handleAddProduct} style={buttonStyle}>Add Product</button>
     </div>
     {isOpen ? <Products setIsOpen={setIsOpen}/> : <></>}
+    <ProductsShow />
     </>
   );
 }

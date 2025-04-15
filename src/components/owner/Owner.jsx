@@ -3,8 +3,8 @@ import { Home, UtensilsCrossed, Flame, Bell, Package, LogOut, Users, BarChart3 }
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 
-import { Outlet } from 'react-router-dom';
-import { NavLink } from 'react-router-dom';
+import { Outlet ,NavLink , useLocation ,Navigate } from 'react-router-dom';
+
 
 
 const navItems = [
@@ -16,6 +16,8 @@ const navItems = [
 
 export default function Owner() {
     const [isHovered, setIsHovered] = useState(false);
+    const location = useLocation();
+    
   return (
     <div className="flex min-h-screen bg-gray-50 pt-5">
       {/* Sidebar */}
@@ -52,8 +54,7 @@ export default function Owner() {
 
       {/* Content area */}
       <div className="flex-1 flex flex-col m-6">
-      
-        <Outlet /> 
+      {location.pathname === '/owner' ?  <Navigate to="/owner/menu" /> : <Outlet />  } 
       </div>
     </div>
   );
