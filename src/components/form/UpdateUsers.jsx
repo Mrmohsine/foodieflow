@@ -1,50 +1,71 @@
 import { motion } from "framer-motion";
-import React, { useEffect, useState } from "react";
-import { signUpWithoutLogin } from "../../firebase/firebase-auth";
+import React, { useState } from "react";
 import { Listbox } from "@headlessui/react";
 import { Check, ChevronDown, X } from "lucide-react";
-import { useFirestoreUser ,updateUser} from "../../User_crud/users_crud";
-import { useNavigate } from "react-router";
+import { updateUser } from "../../User_crud/users_crud";
+import { useFirestoreUser } from "../../User_crud/users_crud";
 import { useUsersByAdmin } from "../context/usersByAdmin";
+import { getAuth, signInWithEmailAndPassword, updatePassword } from "firebase/auth";
+import { initializeApp, deleteApp } from "firebase/app";
+import { firebaseConfig } from "../../firebase/firebase-config";
 
 export default function UpdateUser({ selectedUser, setIsOpen }) {
   const { firebaseUser } = useFirestoreUser();
-  const navigate = useNavigate();
   const { count, setCount } = useUsersByAdmin();
-
-  // Initialize the form fields using the selected user's data.
   const [credentials, setCredentials] = useState({
     fullName: selectedUser?.fullName || "",
     email: selectedUser?.email || "",
     role: selectedUser?.role || "client",
+    oldPassword: "",
     password: "",
   });
-  
+
   const roles = ["client", "reception", "kitchen", "supplier"];
 
   const handleChange = (e) => {
-    setCredentials({
-      ...credentials,
+    setCredentials((prev) => ({
+      ...prev,
       [e.target.name]: e.target.value,
-    });
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Update non-password fields.
-      await updateUser(firebaseUser.uid, {
+      // Update Firestore user fields
+      await updateUser(selectedUser.id, {
         fullName: credentials.fullName,
         email: credentials.email,
         role: credentials.role,
       });
-      
-      // Only update password if the field is non-empty.
+
+      // If a new password is provided:
       if (credentials.password.trim() !== "") {
-        // This might require reauthentication, so handle that separately.
-        await updatePassword(credentials.password);
+        // current password must be provided
+        if (!credentials.oldPassword) {
+          alert("Please enter your current password to change it.");
+          return;
+        }
+        console.log("Updating password for user:", credentials.oldPassword);
+        const tempApp = initializeApp(firebaseConfig, "TempUpdateApp");
+        const tempAuth = getAuth(tempApp);
+        try {
+          const loginUser = await signInWithEmailAndPassword(
+            tempAuth,
+            selectedUser.email,
+            credentials.oldPassword
+          );
+          await updatePassword(loginUser.user, credentials.password);
+          console.log("Password updated successfully");
+        } catch (err) {
+          console.error("Password update failed:", err);
+          alert("Failed to update password: " + err.message);
+        } finally {
+          await tempAuth.signOut();
+          await deleteApp(tempApp);
+        }
       }
-      
+
       setCount(count + 1);
       setIsOpen(false);
     } catch (error) {
@@ -90,7 +111,6 @@ export default function UpdateUser({ selectedUser, setIsOpen }) {
             onChange={handleChange}
             required
           />
-          {/* You can keep role hidden or show it as part of the form */}
           <input
             type="hidden"
             name="role"
@@ -108,25 +128,32 @@ export default function UpdateUser({ selectedUser, setIsOpen }) {
           />
           <input
             type="password"
+            name="oldPassword"
+            placeholder="Current password (required to change password)"
+            className="w-full p-2 border border-orange-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
+            value={credentials.oldPassword}
+            onChange={handleChange}
+            required={credentials.password.trim() !== ""}
+          />
+          <input
+            type="password"
             name="password"
-            placeholder="Password (leave blank to keep unchanged)"
+            placeholder="New password (optional)"
             className="w-full p-2 border border-orange-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
             value={credentials.password}
             onChange={handleChange}
-            />
+          />
           <Listbox
             value={credentials.role}
             onChange={(value) =>
-              handleChange({ target: { name: "role", value } })
+              setCredentials((prev) => ({ ...prev, role: value }))
             }
           >
             <div className="relative w-full">
               <Listbox.Button className="relative w-full cursor-pointer rounded border border-orange-300 bg-white py-2 pl-3 pr-10 text-left text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-sm">
                 <span className="block truncate">
-                  {credentials.role
-                    ? credentials.role.charAt(0).toUpperCase() +
-                      credentials.role.slice(1)
-                    : (credentials.role = roles[0])}
+                  {credentials.role.charAt(0).toUpperCase() +
+                    credentials.role.slice(1)}
                 </span>
                 <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                   <ChevronDown
@@ -139,12 +166,12 @@ export default function UpdateUser({ selectedUser, setIsOpen }) {
                 {roles.map((role) => (
                   <Listbox.Option
                     key={role}
+                    value={role}
                     className={({ active }) =>
                       `relative cursor-pointer select-none py-2 pl-10 pr-4 ${
                         active ? "bg-orange-100 text-orange-900" : "text-gray-900"
                       }`
                     }
-                    value={role}
                   >
                     {({ selected }) => (
                       <>
@@ -157,7 +184,10 @@ export default function UpdateUser({ selectedUser, setIsOpen }) {
                         </span>
                         {selected && (
                           <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-orange-600">
-                            <Check className="h-4 w-4" aria-hidden="true" />
+                            <Check
+                              className="h-4 w-4"
+                              aria-hidden="true"
+                            />
                           </span>
                         )}
                       </>

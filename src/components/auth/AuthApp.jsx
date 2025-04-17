@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom"; // Import useLocation
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { signUp, signIn, logout, auth } from "../../firebase/firebase-auth";
+import { sendPasswordResetEmail } from "firebase/auth";
 
 function AuthApp() {
   const location = useLocation(); 
@@ -45,6 +46,16 @@ function AuthApp() {
       alert(error.message);
     }
   };
+  const handlePassword = async() => {
+    const auth = getAuth();
+    if (!credentials.email) {
+      alert("Please enter your email address.");
+      return;
+    }
+    await sendPasswordResetEmail(auth, credentials.email);
+    alert("Password reset email sent to " + credentials.email);
+  };
+
 
   const handleLogout = async () => {
     try {
@@ -113,9 +124,17 @@ function AuthApp() {
           {isLoginMode ? "Don't have an account?" : "Already have an account?"}{" "}
           <button
             onClick={() => setIsLoginMode(!isLoginMode)}
-            className="underline"
+            className="underline cursor-pointer"
           >
             {isLoginMode ? "Sign Up" : "Sign In"}
+          </button>
+          <br />
+          <button
+            type="button"
+            onClick={handlePassword}
+            className="underline cursor-pointer"
+          >
+            {isLoginMode ? "Reset Password" : ""}
           </button>
         </p>
       </div>

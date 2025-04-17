@@ -1,7 +1,7 @@
 import React ,{useState} from 'react'
 import Users_dash from '../fetch/Users_dash';
 import { useNavigate } from 'react-router';
-import Form from '../form/Form';
+import CreateUsers from '../form/CreateUsers';
 
 
 export default function Users_created() {
@@ -23,7 +23,7 @@ export default function Users_created() {
           Add User
         </button>
       </div>
-     {isopen ? <Form setIsOpen ={setIsOpen}/> : <></>}
+     {isopen ? <CreateUsers setIsOpen ={setIsOpen}/> : <></>}
       
       {/* Dashboard / Users list section */}
       <Users_dash />

@@ -11,7 +11,7 @@ import { useNavigate } from "react-router";
 import { useUsersByAdmin } from '../context/usersByAdmin';
 import { X } from "lucide-react";
 
-export default function AnimatedForm({ setIsOpen }) {
+export default function CreateUsers({ setIsOpen }) {
   const [refreshKey, setRefreshKey] = useState(true);
   const {user,setCount,count} = useUsersByAdmin();
   const navigate = useNavigate();

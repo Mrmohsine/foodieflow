@@ -6,6 +6,7 @@ import App from './App.jsx'
 import { UsersProvider  } from './components/context/users.jsx' 
 import { UseUserByAdmin  } from './components/context/usersByAdmin.jsx' 
 import { UseProductsByAdmin  } from './components/context/productsByAdmin.jsx' 
+import { UseProductsForClient } from './components/context/ProductsForClient.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -13,7 +14,9 @@ createRoot(document.getElementById('root')).render(
       <UsersProvider>
       <UseUserByAdmin>
       <UseProductsByAdmin >
+      <UseProductsForClient>
         <App />
+      </UseProductsForClient>
       </UseProductsByAdmin>
       </UseUserByAdmin>
       </UsersProvider>

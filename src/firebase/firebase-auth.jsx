@@ -3,7 +3,8 @@ import {
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
   signOut, 
-  updateProfile 
+  updateProfile,
+  updatePassword
 } from "firebase/auth";
 
 import { firebaseConfig, db, app } from "./firebase-config"; 
@@ -72,6 +73,32 @@ export const signUpWithoutLogin = async (email, password, fullName, role, admin_
     console.error("Error during signUpWithoutLogin:", error);
     throw error;
   } finally {
+    await tempAuth.signOut();
+    await deleteApp(tempApp);
+  }
+};
+export const updateUserPasswordWithoutLogin = async (email, oldPassword, newPassword) => {
+  if (!oldPassword) {
+    throw new Error("Old password is required to update the password");
+  }
+
+  const tempApp = initializeApp(firebaseConfig, "SecondaryUpdate");
+  const tempAuth = getAuth(tempApp);
+
+  try {
+
+    const userCredential = await signInWithEmailAndPassword(tempAuth, email, oldPassword);
+
+
+    await updatePassword(userCredential.user, newPassword);
+    console.log("Password updated successfully");
+
+    return true;
+  } catch (error) {
+    console.error("Error updating password without login:", error);
+    throw error;
+  } finally {
+
     await tempAuth.signOut();
     await deleteApp(tempApp);
   }
