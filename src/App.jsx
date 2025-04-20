@@ -14,17 +14,23 @@ import RouteTransitionWrapper from "./components/pages/RouteTransitionWrapper";
 import Users_created from './components/Owner_dash_items/Users_created';
 import Products_created from "./components/Owner_dash_items/Products_created";
 import CreateUsers from './components/form/CreateUsers';
-
-
-
+import KithenDash from "./components/kitchen/KithenDash";
 
 export default function App() {
   const [firebaseUser, loadingAuth] = useAuthState(auth);
+
+  
+  const isInitialLoading = loadingAuth || (firebaseUser && !firestoreUser);
+  
   const firestoreUser = useUser(firebaseUser?.uid);
 
-  const isInitialLoading = loadingAuth || (firebaseUser && !firestoreUser);
-
   if (isInitialLoading) return <LoadingScreen />;
+  // const [firebaseUser, loadingAuth] = useAuthState(auth);
+  // const { user: firestoreUser, loading: loadingUser } = useUser(firebaseUser?.uid);
+
+  // const isInitialLoading = loadingAuth || loadingUser;
+
+  // if (isInitialLoading) return <LoadingScreen />;
 
   return (
     <>
@@ -40,15 +46,16 @@ export default function App() {
             element={
               <ProtectedRoute>
               {firestoreUser?.role === "admin" ? (
-                <Navigate to="./owner/menu" />
+                <Navigate to="/owner/menu" />
               ) : firestoreUser?.role === "client" ? (
-                <Navigate to="./menu" />
+                <Navigate to="/menu" />
               ) : (
                 <Error />
               )}                
               </ProtectedRoute>
             }
           />
+          {console.log(firestoreUser?.role)}
           <Route
             path="/owner"
             element={
@@ -63,6 +70,7 @@ export default function App() {
           </Route>
 
           <Route path="/menu" element={<Menu />} />
+          <Route path="/kitchen" element={<KithenDash />} />
           <Route path="*" element={<Error />} />
         </Routes>
       </RouteTransitionWrapper>

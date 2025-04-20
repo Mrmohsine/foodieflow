@@ -29,6 +29,28 @@ export const useUser = (uid) => {
 
   return userData;
 };
+// export function useUser(uid) {
+//   const [user, setUser] = useState(null);
+//   const [loading, setLoading] = useState(true);
+
+//   useEffect(() => {
+//     if (!uid) return;
+
+//     const fetchUser = async () => {
+//       setLoading(true);
+//       const docRef = doc(db, "users", uid);
+//       const docSnap = await getDoc(docRef);
+//       if (docSnap.exists()) {
+//         setUser(docSnap.data());
+//       }
+//       setLoading(false);
+//     };
+
+//     fetchUser();
+//   }, [uid]);
+
+//   return { user, loading };
+// }
 
 
 export const deleteUser = async (userId, count, setCount) => {

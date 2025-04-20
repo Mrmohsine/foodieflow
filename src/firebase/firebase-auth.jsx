@@ -10,6 +10,8 @@ import {
 import { firebaseConfig, db, app } from "./firebase-config"; 
 import { doc, setDoc } from "firebase/firestore";
 import { initializeApp,deleteApp } from "firebase/app";
+import React from "react";
+import { Navigate, useNavigate } from "react-router";
 
 
 const auth = getAuth(app);
@@ -26,7 +28,7 @@ export const signUp = async (email, password, fullname, role) => {
       fullName: fullname,
       createdAt: new Date().toISOString()
     });
-    
+    // <Navigate to="/" />;
     return userCredential.user;
   } catch (error) {
     console.error("Sign Up Error: ", error);
@@ -49,6 +51,7 @@ export const signIn = async (email, password) => {
 export const logout = async () => {
   try {
     await signOut(auth);
+    <Navigate to="/login" />;
   } catch (error) {
     console.error("Sign Out Error: ", error);
     throw error;

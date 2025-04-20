@@ -8,7 +8,7 @@ export default function ProductsShow({ products, onEdit = noop, onDelete = noop 
   const showActions = onEdit !== noop || onDelete !== noop;
 
   return (
-    <div className="mt-2 p-5 w-[85%] mx-auto rounded-lg">
+    <div className="p-5 w-[85%] mx-auto rounded-lg ">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
         {products.map(product => (
           <motion.div

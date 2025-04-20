@@ -15,7 +15,10 @@ export default function Menu() {
 
   return (
     <>
+    <div className='mt-12 '>
+
       {firestoreUser?.role === 'client' ? <MenuForClients /> :firestoreUser?.role === 'admin' ? <ProductsShow products={products}  /> : <></>}
+    </div>
     </>
   );
 }

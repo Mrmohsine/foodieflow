@@ -7,6 +7,7 @@ import { UsersProvider  } from './components/context/users.jsx'
 import { UseUserByAdmin  } from './components/context/usersByAdmin.jsx' 
 import { UseProductsByAdmin  } from './components/context/productsByAdmin.jsx' 
 import { UseProductsForClient } from './components/context/ProductsForClient.jsx'
+import { UseProductsOrdered } from './components/context/ProductsOrdered.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -15,7 +16,9 @@ createRoot(document.getElementById('root')).render(
       <UseUserByAdmin>
       <UseProductsByAdmin >
       <UseProductsForClient>
+        <UseProductsOrdered>
         <App />
+        </UseProductsOrdered>
       </UseProductsForClient>
       </UseProductsByAdmin>
       </UseUserByAdmin>
