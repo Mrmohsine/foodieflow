@@ -5,7 +5,8 @@ import Nav from "./components/nav/Nav";
 import Error from "./components/error/Error";
 import Menu from "./components/menu/Menu";
 import Owner from "./components/owner/Owner";
-import { useUser } from "./User_crud/users_crud";
+// import { useUser } from "./User_crud/users_crud";
+import { useUser } from "./components/context/user";
 import { auth } from "./firebase/firebase-auth";
 import { useAuthState } from "react-firebase-hooks/auth";
 import ProtectedRoute from "./components/pages/ProtectedRoute";
@@ -17,16 +18,19 @@ import CreateUsers from './components/form/CreateUsers';
 import KithenDash from "./components/kitchen/KithenDash";
 
 export default function App() {
-  const [firebaseUser, loadingAuth] = useAuthState(auth);
-
-  
-  const isInitialLoading = loadingAuth || (firebaseUser && !firestoreUser);
-  
-  const firestoreUser = useUser(firebaseUser?.uid);
-
-  if (isInitialLoading) return <LoadingScreen />;
   // const [firebaseUser, loadingAuth] = useAuthState(auth);
-  // const { user: firestoreUser, loading: loadingUser } = useUser(firebaseUser?.uid);
+
+  // const user = useUser(firebaseUser?.uid);
+  // const isInitialLoading = loadingAuth || (firebaseUser && !user);
+
+
+  const {user , loadingAuth} = useUser();
+  const isInitialLoading = loadingAuth || (!user);
+  if (isInitialLoading) return <AuthApp />;
+
+
+  // const [firebaseUser, loadingAuth] = useAuthState(auth);
+  // const { user: user, loading: loadingUser } = useUser(firebaseUser?.uid);
 
   // const isInitialLoading = loadingAuth || loadingUser;
 
@@ -34,9 +38,9 @@ export default function App() {
 
   return (
     <>
-    <p>hi you are {firestoreUser?.role}</p>
+     <p>hi you are {user?.role}</p>
       <Nav />
-
+      
       <RouteTransitionWrapper>
         <Routes>
           <Route path="/login" element={<AuthApp />} />
@@ -45,22 +49,25 @@ export default function App() {
             path="/"
             element={
               <ProtectedRoute>
-              {firestoreUser?.role === "admin" ? (
+              {user?.role === "admin" ? (
                 <Navigate to="/owner/menu" />
-              ) : firestoreUser?.role === "client" ? (
+              ) : user?.role === "client" ? (
                 <Navigate to="/menu" />
-              ) : (
+              ) : user?.role === "kitchen" ? (
+                <Navigate to="/kitchen" />
+              ) :
+              (
                 <Error />
               )}                
               </ProtectedRoute>
             }
           />
-          {console.log(firestoreUser?.role)}
+          {/* {console.log(user?.role)} */}
           <Route
             path="/owner"
             element={
               <ProtectedRoute>
-                {firestoreUser?.role === "admin" ? <Owner /> : <Error />}
+                {user?.role === "admin" ? <Owner /> : <Error />}
               </ProtectedRoute>
             }
           >

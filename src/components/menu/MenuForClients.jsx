@@ -6,6 +6,7 @@ import {X} from 'lucide-react';
 import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { addProductOrder } from '../context/ProductsMenu';
+import { useProductsOrdered } from '../context/ProductsOrdered';
 
 export default function MenuForClients() {
   const products = useProductsForClient()?.products || [];

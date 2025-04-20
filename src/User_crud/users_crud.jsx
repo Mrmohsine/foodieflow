@@ -5,30 +5,31 @@ import { auth } from '../firebase/firebase-auth';
 import { useAuthState } from "react-firebase-hooks/auth";
 import {useUsers} from '../components/context/users';
 import { useUsersByAdmin } from '../components/context/usersByAdmin';
+import { useUser } from '../components/context/user';
 // Custom hook to access the UsersContext
 
 
-export const useUser = (uid) => {
-  const [userData, setUserData] = useState(null);
+// export const useUser = (uid) => {
+//   const [userData, setUserData] = useState(null);
+//   const [count, setCount] = useState(0);
+//   useEffect(() => {
+//     if (!uid) return;
 
-  useEffect(() => {
-    if (!uid) return;
+//     const fetchUser = async () => {
+//       const docRef = doc(db, 'users', uid);
+//       const docSnap = await getDoc(docRef);
+//       if (docSnap.exists()) {
+//         setUserData(docSnap.data());
+//       } else {
+//         setUserData(null);
+//       }
+//     };
 
-    const fetchUser = async () => {
-      const docRef = doc(db, 'users', uid);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        setUserData(docSnap.data());
-      } else {
-        setUserData(null);
-      }
-    };
+//     fetchUser();
+//   }, [uid,count]);
 
-    fetchUser();
-  }, [uid]);
-
-  return userData;
-};
+//   return userData;
+// };
 // export function useUser(uid) {
 //   const [user, setUser] = useState(null);
 //   const [loading, setLoading] = useState(true);
@@ -79,7 +80,7 @@ export const updateUser = async (userId, userData) => {
 export const useFirestoreUser = () => {
     const [firebaseUser] = useAuthState(auth);
     // Only call useUser when firebaseUser is defined
-    const firestoreUser = useUser(firebaseUser?.uid);
+    const firestoreUser = useUser();
     return { firebaseUser, firestoreUser };
   };
 

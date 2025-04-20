@@ -4,20 +4,22 @@ import { NavLink, Link } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import { logout, auth } from "../../firebase/firebase-auth";
 import { useFirestoreUser } from '../../User_crud/users_crud';
+import { useUser } from "../context/user";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [user, setUser] = useState(null);
-  const { firebaseUser, firestoreUser } = useFirestoreUser();
+  // const [user, setUser] = useState(null);
+  // const { firebaseUser, firestoreUser } = useFirestoreUser();
+  // // const {user } = useUser();
 
-  // Listen for auth state changes.
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
-    return unsubscribe;
-  }, []);
-
+  // // Listen for auth state changes.
+  // useEffect(() => {
+  //   const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+  //     setUser(currentUser);
+  //   });
+  //   return unsubscribe;
+  // }, []);
+  const { user, loadingAuth } = useUser();
   // Map of roles to nav items.
   const roleBasedNavItems = {
     admin: ['kitchen', 'reception', 'supplier', 'owner'],
@@ -80,7 +82,7 @@ export default function Navbar() {
           </div>
 
           {/* Center Section: Navigation Links (Desktop) */}
-          {renderNavItems(firestoreUser?.role)}
+          {renderNavItems(user?.role)}
 
           {/* Right Section: Auth */}
           <div className="hidden md:flex space-x-4 items-center">
@@ -89,7 +91,7 @@ export default function Navbar() {
                 onClick={handleLogout}
                 className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 transition-colors"
               >
-                Sign Outs
+                Sign Out
               </button>
             ) : (
               <>

@@ -8,10 +8,12 @@ import { UseUserByAdmin  } from './components/context/usersByAdmin.jsx'
 import { UseProductsByAdmin  } from './components/context/productsByAdmin.jsx' 
 import { UseProductsForClient } from './components/context/ProductsForClient.jsx'
 import { UseProductsOrdered } from './components/context/ProductsOrdered.jsx'
+import { UserProvider } from './components/context/user.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Router>
+      <UserProvider>
       <UsersProvider>
       <UseUserByAdmin>
       <UseProductsByAdmin >
@@ -23,6 +25,7 @@ createRoot(document.getElementById('root')).render(
       </UseProductsByAdmin>
       </UseUserByAdmin>
       </UsersProvider>
+      </UserProvider>
     </Router>
   </StrictMode>,
 )

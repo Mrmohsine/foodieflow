@@ -4,13 +4,15 @@ import { Navigate, useLocation } from "react-router-dom"; // Import useLocation
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { signUp, signIn, logout, auth } from "../../firebase/firebase-auth";
 import { sendPasswordResetEmail } from "firebase/auth";
+import {useUser } from '../context/user'
+
 
 function AuthApp() {
   const location = useLocation(); 
   const [user, setUser] = useState(null);
   const [credentials, setCredentials] = useState({ role: "admin", fullName: "", email: "", password: "" });
   const [isLoginMode, setIsLoginMode] = useState(true);
-
+  const {count, setCount} = useUser();
   useEffect(() => {
     if (location.pathname === "/signup") {
       setIsLoginMode(false);
@@ -38,8 +40,10 @@ function AuthApp() {
     try {
       if (isLoginMode) {
         await signIn(credentials.email, credentials.password);
+        setCount(count + 1);
       } else {
         await signUp(credentials.email, credentials.password, credentials.fullName,credentials.role);
+        setCount(count + 1);
       }
       setCredentials({ fullName: "", email: "", password: "" });
     } catch (error) {

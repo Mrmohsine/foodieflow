@@ -40,7 +40,7 @@ export const signUp = async (email, password, fullname, role) => {
 export const signIn = async (email, password) => {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    return userCredential.user;
+    return userCredential.user.uid;
   } catch (error) {
     console.error("Sign In Error: ", error);
     throw error;
