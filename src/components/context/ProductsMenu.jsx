@@ -4,6 +4,7 @@ import { getFirestore, addDoc, serverTimestamp,
     doc,
     collection,
     runTransaction,
+    updateDoc,
      } from 'firebase/firestore';
 
 // export const addProductOrder =async (cartItems) => {
@@ -117,6 +118,8 @@ export const addProductOrder = async (cartItems) => {
           items:       cartItems,
           numberOrder: next,
           createdAt:   serverTimestamp(),
+          valid: false,
+          payed: false,
         });
   
         tx.update(counterRef, { value: next });
@@ -128,3 +131,27 @@ export const addProductOrder = async (cartItems) => {
       alert("Failed to submit order — please try again.");
     }
   };
+
+
+export const validateOrder = async (orderId) => {
+  const db = getFirestore();
+  const orderRef = doc(db, "products_ordered", orderId);
+  try {
+    await updateDoc(orderRef, { valid: true });
+    alert("Order validated!");
+  } catch (err) {
+    console.error("Validation failed: ", err);
+    alert("Failed to validate order — please try again.");
+  }
+};
+export const paymentOrder = async (orderId) => {
+  const db = getFirestore();
+  const orderRef = doc(db, "products_ordered", orderId);
+  try {
+    await updateDoc(orderRef, { payed: true });
+    alert("Order Payed!");
+  } catch (err) {
+    console.error("Payment failed: ", err);
+    alert("Failed to pay order — please try again.");
+  }
+};

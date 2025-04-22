@@ -16,6 +16,7 @@ import Users_created from './components/Owner_dash_items/Users_created';
 import Products_created from "./components/Owner_dash_items/Products_created";
 import CreateUsers from './components/form/CreateUsers';
 import KithenDash from "./components/kitchen/KithenDash";
+import ReceptionDash from "./components/reception/ReceptionDash";
 
 export default function App() {
   // const [firebaseUser, loadingAuth] = useAuthState(auth);
@@ -25,8 +26,8 @@ export default function App() {
 
 
   const {user , loadingAuth} = useUser();
-  const isInitialLoading = loadingAuth || (!user);
-  if (isInitialLoading) return <AuthApp />;
+  if (loadingAuth) return <LoadingScreen />;
+  if (!user) return <AuthApp />;
 
 
   // const [firebaseUser, loadingAuth] = useAuthState(auth);
@@ -53,8 +54,13 @@ export default function App() {
                 <Navigate to="/owner/menu" />
               ) : user?.role === "client" ? (
                 <Navigate to="/menu" />
-              ) : user?.role === "kitchen" ? (
+              ) :
+               user?.role === "kitchen" ? (
                 <Navigate to="/kitchen" />
+              ) 
+              :
+              user?.role === "reception" ? (
+                <Navigate to="/reception" />
               ) :
               (
                 <Error />
@@ -78,6 +84,7 @@ export default function App() {
 
           <Route path="/menu" element={<Menu />} />
           <Route path="/kitchen" element={<KithenDash />} />
+          <Route path="/reception" element={<ReceptionDash />} />
           <Route path="*" element={<Error />} />
         </Routes>
       </RouteTransitionWrapper>

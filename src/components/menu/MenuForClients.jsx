@@ -17,6 +17,7 @@ export default function MenuForClients() {
   const [qtyModalProduct, setQtyModalProduct] = useState(null);
   const [detailsProducts, setDetailsProducts] = useState('');
   const [qty, setQty] = useState(1);
+  const [instructions, setInstructions] = useState('');
 
   // Open the quantity modal for a given product
   const handleAddClick = (product) => {
@@ -38,9 +39,10 @@ export default function MenuForClients() {
             : item
         );
       }
-      return [...prev, { ...qtyModalProduct, quantity: qty }];
+      return [...prev, { ...qtyModalProduct, quantity: qty, instructions }];
     });
     setQtyModalProduct(null);
+    setInstructions('');
   };
 
   // Submit the cart order to Firestore
@@ -154,6 +156,13 @@ export default function MenuForClients() {
               onChange={e => setQty(parseInt(e.target.value) || 1)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-orange-400"
             />
+            <textarea
+              rows="3"
+              value={instructions}
+              onChange={e => setInstructions(e.target.value)}
+              placeholder="Add special instructions (optional)"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-orange-400 placeholder-gray-400 resize-none"
+            />
             <div className="flex justify-end space-x-2">
               <button
                 onClick={() => setQtyModalProduct(null)}
@@ -221,6 +230,9 @@ export default function MenuForClients() {
                     <div>
                       <p className="font-semibold text-gray-800">{item.name}</p>
                       <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
+                      {item.instructions && (
+                        <p className="text-xs text-gray-500 italic break-words mt-1">"{item.instructions}"</p>
+                      )}
                     </div>
                     <p className="font-semibold text-gray-800">
                       ${(item.price * item.quantity).toFixed(2)}
