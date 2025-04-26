@@ -5,9 +5,14 @@ import { Check, ChevronDown, X } from "lucide-react";
 import { updateUser } from "../../User_crud/users_crud";
 import { useFirestoreUser } from "../../User_crud/users_crud";
 import { useUsersByAdmin } from "../context/usersByAdmin";
-import { getAuth, signInWithEmailAndPassword, updatePassword } from "firebase/auth";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  updatePassword,
+} from "firebase/auth";
 import { initializeApp, deleteApp } from "firebase/app";
 import { firebaseConfig } from "../../firebase/firebase-config";
+import { toast } from "react-hot-toast"; // ← import toast
 
 export default function UpdateUser({ selectedUser, setIsOpen }) {
   const { firebaseUser } = useFirestoreUser();
@@ -31,6 +36,7 @@ export default function UpdateUser({ selectedUser, setIsOpen }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       // Update Firestore user fields
       await updateUser(selectedUser.id, {
@@ -43,12 +49,13 @@ export default function UpdateUser({ selectedUser, setIsOpen }) {
       if (credentials.password.trim() !== "") {
         // current password must be provided
         if (!credentials.oldPassword) {
-          alert("Please enter your current password to change it.");
+          toast.error("Please enter your current password to change it.");
           return;
         }
-        console.log("Updating password for user:", credentials.oldPassword);
+
         const tempApp = initializeApp(firebaseConfig, "TempUpdateApp");
         const tempAuth = getAuth(tempApp);
+
         try {
           const loginUser = await signInWithEmailAndPassword(
             tempAuth,
@@ -56,10 +63,10 @@ export default function UpdateUser({ selectedUser, setIsOpen }) {
             credentials.oldPassword
           );
           await updatePassword(loginUser.user, credentials.password);
-          console.log("Password updated successfully");
+          toast.success("Password updated successfully!");
         } catch (err) {
           console.error("Password update failed:", err);
-          alert("Failed to update password: " + err.message);
+          toast.error("Failed to update password: " + err.message);
         } finally {
           await tempAuth.signOut();
           await deleteApp(tempApp);
@@ -67,9 +74,10 @@ export default function UpdateUser({ selectedUser, setIsOpen }) {
       }
 
       setCount(count + 1);
+      toast.success("User updated!");
       setIsOpen(false);
     } catch (error) {
-      alert(error.message);
+      toast.error(error.message);
     }
   };
 
@@ -129,7 +137,7 @@ export default function UpdateUser({ selectedUser, setIsOpen }) {
           <input
             type="password"
             name="oldPassword"
-            placeholder="Current password (required to change password)"
+            placeholder="Current password (to change)"
             className="w-full p-2 border border-orange-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
             value={credentials.oldPassword}
             onChange={handleChange}
@@ -169,7 +177,9 @@ export default function UpdateUser({ selectedUser, setIsOpen }) {
                     value={role}
                     className={({ active }) =>
                       `relative cursor-pointer select-none py-2 pl-10 pr-4 ${
-                        active ? "bg-orange-100 text-orange-900" : "text-gray-900"
+                        active
+                          ? "bg-orange-100 text-orange-900"
+                          : "text-gray-900"
                       }`
                     }
                   >

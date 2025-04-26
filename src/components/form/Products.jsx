@@ -5,6 +5,7 @@ import CloudUploadSharpIcon from '@mui/icons-material/CloudUploadSharp';
 import LoadingScreen from '../pages/LoadingScreen';
 import { useFirestoreUser } from '../../User_crud/users_crud';
 import { useProductsByAdmin } from '../context/productsByAdmin';
+import { toast } from 'react-hot-toast';  // ← import toast
 
 export default function Products({ productToEdit, setProductToEdit, setIsOpen }) {
   const [formData, setFormData] = useState({ name: '', description: '', price: '' });
@@ -13,6 +14,7 @@ export default function Products({ productToEdit, setProductToEdit, setIsOpen })
   const [imageFile, setImageFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null);
+
   const { firebaseUser } = useFirestoreUser();
   const { count, setCount } = useProductsByAdmin(0);
   const adminID = firebaseUser?.uid;
@@ -20,40 +22,43 @@ export default function Products({ productToEdit, setProductToEdit, setIsOpen })
   useEffect(() => {
     if (productToEdit) {
       setFormData({
-        name: productToEdit.name,
+        name:        productToEdit.name,
         description: productToEdit.description || '',
-        price: productToEdit.price || ''
+        price:       productToEdit.price || ''
       });
       setExistingImageUrl(productToEdit.img);
       setFileContent(productToEdit.img);
     }
   }, [productToEdit]);
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = e => {
     const file = e.target.files[0];
     setImageFile(file);
     setFileContent(URL.createObjectURL(file));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     setLoading(true);
+
     try {
       let imageUrl = existingImageUrl;
+
       if (imageFile) {
         const data = new FormData();
         data.append('file', imageFile);
         data.append('upload_preset', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
-        const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-        const url = `https://api.cloudinary.com/v1_1/${cloudName}/upload`;
+        const url = `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/upload`;
         const response = await fetch(url, { method: 'POST', body: data });
         const result = await response.json();
-        if (!response.ok || !result.secure_url) throw new Error('Upload failed');
+        if (!response.ok || !result.secure_url) {
+          throw new Error('Upload failed');
+        }
         imageUrl = result.secure_url;
       }
 
@@ -64,21 +69,21 @@ export default function Products({ productToEdit, setProductToEdit, setIsOpen })
       }
 
       setCount(count + 1);
-      setLoading(false);
+      toast.success(productToEdit ? 'Product updated!' : 'Product created!');  // ← success toast
       setIsOpen(false);
       if (productToEdit) setProductToEdit(null);
     } catch (err) {
       console.error(err);
-      alert('Error saving product');
+      toast.error('Error saving product');  // ← error toast
+    } finally {
       setLoading(false);
+      // reset form
+      setFormData({ name: '', description: '', price: '' });
+      setExistingImageUrl('');
+      setFileContent('');
+      setImageFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = null;
     }
-
-    // reset form
-    setFormData({ name: '', description: '', price: '' });
-    setExistingImageUrl('');
-    setFileContent('');
-    setImageFile(null);
-    if (fileInputRef.current) fileInputRef.current.value = null;
   };
 
   return (
@@ -135,7 +140,9 @@ export default function Products({ productToEdit, setProductToEdit, setIsOpen })
                 ref={fileInputRef}
                 className="hidden"
               />
-              {fileContent && <img src={fileContent} alt="Preview" className="w-[120px] h-auto rounded" />}
+              {fileContent && (
+                <img src={fileContent} alt="Preview" className="w-[120px] h-auto rounded" />
+              )}
             </div>
             <motion.button
               type="submit"

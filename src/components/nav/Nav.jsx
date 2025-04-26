@@ -1,37 +1,26 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { NavLink, Link } from "react-router-dom";
-import { onAuthStateChanged } from "firebase/auth";
-import { logout, auth } from "../../firebase/firebase-auth";
-import { useFirestoreUser } from '../../User_crud/users_crud';
+import { logout } from "../../firebase/firebase-auth";
 import { useUser } from "../context/user";
+import { toast } from "react-hot-toast";  // ← import toast
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  // const [user, setUser] = useState(null);
-  // const { firebaseUser, firestoreUser } = useFirestoreUser();
-  // // const {user } = useUser();
+  const { user } = useUser();
 
-  // // Listen for auth state changes.
-  // useEffect(() => {
-  //   const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-  //     setUser(currentUser);
-  //   });
-  //   return unsubscribe;
-  // }, []);
-  const { user, loadingAuth } = useUser();
   // Map of roles to nav items.
   const roleBasedNavItems = {
-    admin: ['kitchen', 'reception', 'supplier', 'owner'],
-    kitchen: ['kitchen'],
-    reception: ['reception'],
-    supplier: ['supplier'],
+    admin: ['kitchen', 'reception', 'supplier', 'owner']
+  //   kitchen: ['kitchen'],
+  //   reception: ['reception'],
+  //   supplier: ['supplier'],
   };
 
-  // Utility to capitalize the first letter.
-  const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+  // Capitalize utility
+  const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1);
 
-  // Function to determine the className for active or inactive links.
+  // Active / inactive link classes
   const linkClassName = ({ isActive }) =>
     `px-3 py-1 rounded-full transition-colors ${
       isActive
@@ -39,34 +28,36 @@ export default function Navbar() {
         : "text-gray-700 hover:text-orange-600"
     }`;
 
-  const renderNavItems = (role) => {
+  // Render desktop nav items
+  const renderNavItems = role => {
     const items = roleBasedNavItems[role] || [];
-    return (
-      <>
-        {user && (
-          <div className="hidden md:flex space-x-8 items-center ml-10">
-            <NavLink to="/menu" className={linkClassName} end>
-              Menu
-            </NavLink>
-            {items.map((item) => (
-              <NavLink key={item} to={`/${item === 'owner' ? `${item}/menu` : item}`} className={linkClassName}>
-                {capitalize(item)}
-              </NavLink>
-            ))}
-          </div>
-        )}
-      </>
-    );
+    return user ? (
+      <div className="hidden md:flex space-x-8 items-center ml-10">
+        {/* <NavLink to="/menu" className={linkClassName} end>
+          Menu
+        </NavLink> */}
+        {items.map(item => (
+          <NavLink
+            key={item}
+            to={`/${item === 'owner' ? `${item}/menu` : item}`}
+            className={linkClassName}
+          >
+            {capitalize(item)}
+          </NavLink>
+        ))}
+      </div>
+    ) : null;
   };
 
-  const toggleMenu = () => setIsOpen((prev) => !prev);
+  const toggleMenu = () => setIsOpen(prev => !prev);
 
   const handleLogout = async () => {
     try {
       await logout();
+      toast.success("Signed out successfully");
       setIsOpen(false);
     } catch (error) {
-      alert("Error signing out: " + error.message);
+      toast.error("Error signing out: " + error.message);
     }
   };
 
@@ -74,17 +65,17 @@ export default function Navbar() {
     <nav className="fixed top-0 w-full z-50 bg-white border-b border-gray-200 shadow-sm">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          {/* Left Section: Brand */}
+          {/* Brand */}
           <div className="flex-shrink-0 flex items-center">
             <Link to="/" className="text-orange-500 text-xl font-bold">
               FoodieFlow
             </Link>
           </div>
 
-          {/* Center Section: Navigation Links (Desktop) */}
+          {/* Desktop Nav */}
           {renderNavItems(user?.role)}
 
-          {/* Right Section: Auth */}
+          {/* Auth Buttons */}
           <div className="hidden md:flex space-x-4 items-center">
             {user ? (
               <button
@@ -111,7 +102,7 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Toggle */}
           <div className="flex md:hidden">
             <button
               onClick={toggleMenu}
@@ -124,18 +115,14 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Menu (Dropdown) */}
+      {/* Mobile Dropdown */}
       {isOpen && (
         <div className="md:hidden border-t border-gray-200">
           <div className="space-y-1 px-2 py-3">
-            <NavLink
-              to="/menu"
-              className={linkClassName}
-              onClick={() => setIsOpen(false)}
-            >
+            <NavLink to="/menu" className={linkClassName} onClick={() => setIsOpen(false)}>
               Menu
             </NavLink>
-            {["kitchen", "reception", "owner", "supplier"].map((item) => (
+            {["kitchen", "reception", "owner", "supplier"].map(item => (
               <NavLink
                 key={item}
                 to={`/${item === 'owner' ? `${item}/menu` : item}`}

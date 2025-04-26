@@ -1,25 +1,20 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, X, Plus } from 'lucide-react';
 import { useProductsForClient } from '../context/ProductsForClient';
-import {X} from 'lucide-react';
-import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
 import { addProductOrder } from '../context/ProductsMenu';
-import { useProductsOrdered } from '../context/ProductsOrdered';
+import { toast } from 'react-hot-toast';  // ← import toast
 
 export default function MenuForClients() {
   const products = useProductsForClient()?.products || [];
 
-  // State for the cart, modals, and quantity picker
   const [cartItems, setCartItems] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [qtyModalProduct, setQtyModalProduct] = useState(null);
-  const [detailsProducts, setDetailsProducts] = useState('');
+  const [detailsProducts, setDetailsProducts] = useState(null);
   const [qty, setQty] = useState(1);
   const [instructions, setInstructions] = useState('');
 
-  // Open the quantity modal for a given product
   const handleAddClick = (product) => {
     setQtyModalProduct(product);
     setQty(1);
@@ -28,7 +23,6 @@ export default function MenuForClients() {
     setDetailsProducts(product);
   };
 
-  // Confirm adding to cart
   const confirmAddToCart = () => {
     setCartItems(prev => {
       const existing = prev.find(item => item.id === qtyModalProduct.id);
@@ -45,28 +39,23 @@ export default function MenuForClients() {
     setInstructions('');
   };
 
-  // Submit the cart order to Firestore
   const handleOrder = async () => {
     try {
-      // const auth = getAuth();
-      // const user = auth.currentUser;
-      // if (!user) {
-      //   alert('Please log in to place an order.');
-      //   return;
-      // }
-      // const db = getFirestore();
-      // await addDoc(collection(db, 'products_ordered'), {
-      //   clientId: user.uid,
-      //   items: cartItems,
-      //   createdAt: serverTimestamp(),
-      // });
-      // alert('Order submitted!');
       await addProductOrder(cartItems);
       setCartItems([]);
       setIsCartOpen(false);
+      toast.success('Order submitted!');  // ← success toast
     } catch (error) {
       console.error('Order submission failed:', error);
-      alert('Failed to submit order: ' + error.message);
+      toast.error('Failed to submit order: ' + error.message);  // ← error toast
+    }
+  };
+
+  const handleCounter = (e) => {
+    if (e.target.innerText === '-') {
+      setQty(prev => Math.max(1, prev - 1));
+    } else {
+      setQty(prev => prev + 1);
     }
   };
 
@@ -93,6 +82,7 @@ export default function MenuForClients() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.99 }}
               className="bg-white rounded-xl shadow-lg hover:shadow-2xl overflow-hidden"
+              onClick={() => handledetailsClick(product)}
             >
               <img
                 src={product.img}
@@ -108,25 +98,17 @@ export default function MenuForClients() {
                     <span className="text-orange-500 text-lg">$</span>
                     {product.price}
                   </p>
-                  
-                  <div className='flex gap-2'>
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.97 }}
-                    onClick={() => handledetailsClick(product)}
-                    className="px-3 py-1 bg-gradient-to-r from-orange-400 to-orange-600 text-white rounded-lg shadow-md hover:from-orange-500 hover:to-orange-700"
+                    onClick={e => {
+                      e.stopPropagation();
+                      handleAddClick(product);
+                    }}
+                    className="px-2 py-1 bg-gradient-to-r from-orange-400 to-orange-600 text-white rounded-lg shadow-md hover:from-orange-500 hover:to-orange-700"
                   >
-                   details
+                    <Plus className="h-5 w-5 text-white" />
                   </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={() => handleAddClick(product)}
-                    className="px-5 py-1 bg-gradient-to-r from-orange-400 to-orange-600 text-white rounded-lg shadow-md hover:from-orange-500 hover:to-orange-700"
-                  >
-                    <ShoppingCart className="h-5 w-5 text-white" />
-                  </motion.button>
-                  </div>
                 </div>
               </div>
             </motion.div>
@@ -136,32 +118,36 @@ export default function MenuForClients() {
 
       {/* Quantity Picker Modal */}
       {qtyModalProduct && (
-        <div className="fixed inset-0 bg-transparent bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-xl border-2 border-orange-500 p-6 w-80 shadow-lg">
             <div className='flex justify-between items-center mb-4'>
-            <h3 className="text-lg font-bold text-orange-600 ">
-              How many &quot;{qtyModalProduct.name}&quot;?
-            </h3>
-            <button
-                onClick={() => setQtyModalProduct(false)}
+              <h3 className="text-lg font-bold text-orange-600 ">
+                How many “{qtyModalProduct.name}”?
+              </h3>
+              <button
+                onClick={() => setQtyModalProduct(null)}
                 className="text-gray-400 hover:text-gray-600"
               >
                 <X className="h-6 w-6" />
               </button>
             </div>
-            <input
-              type="number"
-              min="1"
-              value={qty}
-              onChange={e => setQty(parseInt(e.target.value) || 1)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-orange-400"
-            />
+            <div className="flex items-center justify-center mb-4">
+              <div className="flex items-center justify-between border-2 border-orange-500 rounded-full px-4 py-2 w-40">
+                <button onClick={handleCounter} className="text-orange-500 text-2xl font-bold hover:text-orange-600">
+                  -
+                </button>
+                <span className="text-xl font-semibold text-gray-800">{qty}</span>
+                <button onClick={handleCounter} className="text-orange-500 text-2xl font-bold hover:text-orange-600">
+                  +
+                </button>
+              </div>
+            </div>
             <textarea
-              rows="3"
+              rows="2"
               value={instructions}
               onChange={e => setInstructions(e.target.value)}
               placeholder="Add special instructions (optional)"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-orange-400 placeholder-gray-400 resize-none"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none"
             />
             <div className="flex justify-end space-x-2">
               <button
@@ -180,29 +166,30 @@ export default function MenuForClients() {
           </div>
         </div>
       )}
+
+      {/* Details Modal */}
       {detailsProducts && (
-        <div className="fixed inset-0 bg-transparent bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl border-2 border-orange-500 p-6 w-[30rem] shadow-lg">
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl border-2 border-orange-500 p-6 w-80 shadow-lg">
             <div className='flex justify-between items-center mb-4'>
-            <h3 className="text-lg font-bold text-orange-600 ">
-              Details of  &quot;{detailsProducts.name}&quot;
-            </h3>
-            <button
-                onClick={() => setDetailsProducts(false)}
+              <h3 className="text-lg font-bold text-orange-600 ">
+                Details of “{detailsProducts.name}”
+              </h3>
+              <button
+                onClick={() => setDetailsProducts(null)}
                 className="text-gray-400 hover:text-gray-600"
               >
                 <X className="h-6 w-6" />
               </button>
             </div>
             <p className="text-gray-700 mb-4">{detailsProducts.description}</p>
-            <div className="flex justify-end space-x-2">
+            <div className="flex justify-end">
               <button
                 onClick={() => setDetailsProducts(null)}
                 className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200"
               >
-                Cancel
+                Close
               </button>
-              
             </div>
           </div>
         </div>
@@ -210,7 +197,7 @@ export default function MenuForClients() {
 
       {/* Cart Contents Modal */}
       {isCartOpen && (
-        <div className="fixed inset-0 bg-transparent bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 w-96 max-h-[80vh] overflow-auto shadow-xl border border-orange-200">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold text-orange-600">Your Cart</h2>
@@ -231,7 +218,9 @@ export default function MenuForClients() {
                       <p className="font-semibold text-gray-800">{item.name}</p>
                       <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
                       {item.instructions && (
-                        <p className="text-xs text-gray-500 italic break-words mt-1">"{item.instructions}"</p>
+                        <p className="text-xs text-gray-500 italic mt-1">
+                          “{item.instructions}”
+                        </p>
                       )}
                     </div>
                     <p className="font-semibold text-gray-800">
@@ -241,19 +230,13 @@ export default function MenuForClients() {
                 ))}
               </ul>
             )}
-            <div className="mt-6 flex justify-end ">
+            <div className="mt-6 flex justify-end">
               <button
                 onClick={handleOrder}
                 className="px-4 py-2 rounded-lg bg-gradient-to-r from-orange-400 to-orange-600 text-white hover:from-orange-500 hover:to-orange-700"
               >
-                order
+                Order
               </button>
-              {/* <button
-                onClick={() => setIsCartOpen(false)}
-                className="px-4 py-2 rounded-lg bg-gradient-to-r from-orange-400 to-orange-600 text-white hover:from-orange-500 hover:to-orange-700"
-              >
-                Close
-              </button> */}
             </div>
           </div>
         </div>
