@@ -56,7 +56,7 @@ export default function KithenDash() {
                         <div>
                         <h3 className="font-semibold">{item.name}</h3>
                         <p>{item.description}</p>
-                        <p><span className="font-semibold">Price:</span> ${item.price}</p>
+                        {/* <p><span className="font-semibold">Price:</span> ${item.price}</p> */}
                         <p><span className="font-semibold">Quantity:</span> {item.quantity}</p>
                         {item.instructions && (
                             <p>
