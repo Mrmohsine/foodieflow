@@ -1,65 +1,56 @@
-import React from 'react'
-import { useProductsOrderedForClient } from '../context/ProductsOrderedForClient'
+// src/components/reception/ReceptionDash.jsx
+import React, { useState } from 'react';
+import { Bell, Package } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { paymentOrder } from '../context/ProductsMenu';
+import { Outlet, NavLink, useLocation, Navigate } from 'react-router-dom';
+
+const navItems = [
+  { icon: <Bell size={20} />,    label: 'Valid', path: 'valid' },
+  { icon: <Package size={20} />, label: 'Payed', path: 'payed' },
+];
 
 export default function ReceptionDash() {
-    const Products = useProductsOrderedForClient();
+  const [isHovered, setIsHovered] = useState(false);
+  const { pathname } = useLocation();
 
-      const handleValid = async (id) => {
-        try {
-          await paymentOrder(id);
-        } catch (err) {
-          console.error('Validation error:', err);
-        }
-      };
   return (
-    <div className='mt-25'>
-        <div className='mt-24 w-[85%] mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5'> 
-      {
-        Products.products
-          .slice()
-          .sort((a, b) => (b.numberOrder || 0) - (a.numberOrder || 0))
-          .map((product) => (
-              <>
-          <motion.div
-            key={product.id}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.1 }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.99 }}
-            className="bg-white rounded-xl shadow-lg hover:shadow-2xl overflow-hidden mb-5 flex flex-col justify-between h-full"
+    <div className="flex min-h-screen bg-gray-50 pt-5">
+      {/* Sidebar */}
+      <motion.div
+        initial={{ width: '4rem' }}
+        animate={{ width: isHovered ? '14rem' : '4rem' }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        className="bg-foodie-orange text-white transition-all duration-300 flex flex-col py-6 px-2 shadow-lg"
+      >
+        <div className="fixed">
+          {navItems.map((item) => (
+            <NavLink
+              to={item.path}
+              key={item.path}
+              className="flex items-center gap-3 px-4 py-3 hover:bg-foodie-dark-orange rounded-md transition-colors"
             >
-            {/* Card content */}
-            <div className="p-4">
-                <h1 className="font-semibold text-lg">Order #: {product.numberOrder}</h1>
-                {product.items?.map((item, idx) => (
-                <div key={idx} className="mt-2 ml-4">
-                    <p className="text-sm font-medium">Item Name: {item.name}</p>
-                    <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
-                </div>
-                ))}
-            </div>
-            <div className="flex justify-end">
-                <motion.button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleValid(product.id);                  
-                }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className={`bg-gradient-to-r ${product.valid == true ? 'from-orange-400 to-orange-600' : 'from-orange-400 to-orange-600'} text-white rounded-lg px-4 py-2 m-4 shadow-md${product.valid == true ? 'hover:from-orange-500 hover:to-orange-700' : 'hover:from-orange-500 hover:to-orange-700'} `}
+              <div className="text-orange-500">{item.icon}</div>
+              {isHovered && (
+                <motion.span
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3, delay: 0.5 }} 
+                  className="whitespace-nowrap text-sm font-medium text-orange-500"
                 >
-                Payment
-                </motion.button>
-            </div>
-            </motion.div>
-          
-          </>
-        ))
-      }
+                  {item.label}
+                </motion.span>
+              )}
+            </NavLink>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Content area */}
+      <div className="flex-1 flex flex-col ">
+        {pathname === '/reception' && <Navigate to="valid" replace />}
+        <Outlet />
+      </div>
     </div>
-    </div>
-  )
+  );
 }
