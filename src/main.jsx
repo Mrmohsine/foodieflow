@@ -10,25 +10,28 @@ import { UseProductsForClient } from './components/context/ProductsForClient.jsx
 import { UseProductsOrdered } from './components/context/ProductsOrdered.jsx'
 import { UserProvider } from './components/context/user.jsx'
 import { UseProductsOrderedForClientProvider } from './components/context/ProductsOrderedForClient.jsx'
+import ErrorBoundary from './components/error/ErrorBoundary'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <Router>
-      <UserProvider>
-      <UsersProvider>
-      <UseUserByAdmin>
-      <UseProductsByAdmin >
-      <UseProductsForClient>
-        <UseProductsOrdered>
-        <UseProductsOrderedForClientProvider >
-        <App />
-        </UseProductsOrderedForClientProvider>
-        </UseProductsOrdered>
-      </UseProductsForClient>
-      </UseProductsByAdmin>
-      </UseUserByAdmin>
-      </UsersProvider>
-      </UserProvider>
-    </Router>
+    <ErrorBoundary>
+      <Router>
+        <UserProvider>
+        <UsersProvider>
+        <UseUserByAdmin>
+        <UseProductsByAdmin >
+        <UseProductsForClient>
+          <UseProductsOrdered>
+          <UseProductsOrderedForClientProvider >
+          <App />
+          </UseProductsOrderedForClientProvider>
+          </UseProductsOrdered>
+        </UseProductsForClient>
+        </UseProductsByAdmin>
+        </UseUserByAdmin>
+        </UsersProvider>
+        </UserProvider>
+      </Router>
+    </ErrorBoundary>
   </StrictMode>,
 )

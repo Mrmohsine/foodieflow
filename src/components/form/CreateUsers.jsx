@@ -1,23 +1,30 @@
 import { motion } from "framer-motion";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { signUpWithoutLogin } from "../../firebase/firebase-auth";
 import { Listbox } from "@headlessui/react";
 import { Check, ChevronDown, X } from "lucide-react";
 import { useFirestoreUser } from "../../User_crud/users_crud";
 import { useUsersByAdmin } from '../context/usersByAdmin';
-import { toast } from 'react-hot-toast';  // ← import toast
+import { toast } from 'react-hot-toast';
 
 export default function CreateUsers({ setIsOpen }) {
   const { firebaseUser } = useFirestoreUser();
   const { count, setCount } = useUsersByAdmin();
+  const roles = ['client', 'reception', 'kitchen'];
 
   const [credentials, setCredentials] = useState({
-    role: "",
+    role: roles[0], // Set default role to 'client'
     fullName: "",
     email: "",
     password: ""
   });
-  const roles = ['client','reception','kitchen'];
+
+  // Ensure role is always set
+  useEffect(() => {
+    if (!credentials.role) {
+      setCredentials(prev => ({ ...prev, role: roles[0] }));
+    }
+  }, [credentials.role]);
 
   const handleChange = (e) => {
     setCredentials({
@@ -28,6 +35,13 @@ export default function CreateUsers({ setIsOpen }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate role
+    if (!credentials.role) {
+      toast.error("Please select a role");
+      return;
+    }
+
     try {
       await signUpWithoutLogin(
         credentials.email,
@@ -37,10 +51,10 @@ export default function CreateUsers({ setIsOpen }) {
         firebaseUser.uid
       );
       setCount(count + 1);
-      toast.success("User created!");        // ← success toast
+      toast.success("User created!");
       setIsOpen(false);
     } catch (error) {
-      toast.error(error.message);            // ← error toast
+      toast.error(error.message);
     }
   };
 
@@ -50,7 +64,7 @@ export default function CreateUsers({ setIsOpen }) {
       initial={{ opacity: 0, y: -50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
-      style={{ backgroundColor : 'transparent', backdropFilter: 'blur(7px)' }}
+      style={{ backgroundColor: 'transparent', backdropFilter: 'blur(7px)' }}
     >
       <motion.div
         className="bg-white p-6 max-w-md w-full rounded mx-4 shadow-md shadow-orange-500"
@@ -85,12 +99,6 @@ export default function CreateUsers({ setIsOpen }) {
           />
 
           <input
-            type="hidden"
-            name="role"
-            value={credentials.role}
-          />
-
-          <input
             type="email"
             name="email"
             placeholder="Email"
@@ -112,28 +120,22 @@ export default function CreateUsers({ setIsOpen }) {
 
           <Listbox
             value={credentials.role}
-            onChange={(value) =>
-              setCredentials(c => ({ ...c, role: value }))
-            }
+            onChange={(value) => setCredentials(prev => ({ ...prev, role: value }))}
           >
-
             <div className="relative w-full">
               <Listbox.Button className="w-full cursor-pointer rounded border border-orange-300 bg-white py-2 pl-3 pr-10 text-left text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-sm">
                 <span className="block truncate">
-                  {credentials.role
-                    ? credentials.role.charAt(0).toUpperCase() + credentials.role.slice(1)
-                    : roles[0]
-                  }
+                  {credentials.role.charAt(0).toUpperCase() + credentials.role.slice(1)}
                 </span>
                 <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
                   <ChevronDown className="h-4 w-4 text-gray-400" />
                 </span>
               </Listbox.Button>
               <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                {roles.map(r => (
+                {roles.map(role => (
                   <Listbox.Option
-                    key={r}
-                    value={r}
+                    key={role}
+                    value={role}
                     className={({ active }) =>
                       `relative cursor-pointer select-none py-2 pl-10 pr-4 ${
                         active ? "bg-orange-100 text-orange-900" : "text-gray-900"
@@ -143,7 +145,7 @@ export default function CreateUsers({ setIsOpen }) {
                     {({ selected }) => (
                       <>
                         <span className={`block truncate ${selected ? "font-medium" : "font-normal"}`}>
-                          {r.charAt(0).toUpperCase() + r.slice(1)}
+                          {role.charAt(0).toUpperCase() + role.slice(1)}
                         </span>
                         {selected && (
                           <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-orange-600">
