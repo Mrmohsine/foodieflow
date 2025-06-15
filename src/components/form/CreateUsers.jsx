@@ -17,7 +17,7 @@ export default function CreateUsers({ setIsOpen }) {
     email: "",
     password: ""
   });
-  const roles = ['client','reception','kitchen','supplier'];
+  const roles = ['client','reception','kitchen'];
 
   const handleChange = (e) => {
     setCredentials({
@@ -116,6 +116,7 @@ export default function CreateUsers({ setIsOpen }) {
               setCredentials(c => ({ ...c, role: value }))
             }
           >
+
             <div className="relative w-full">
               <Listbox.Button className="w-full cursor-pointer rounded border border-orange-300 bg-white py-2 pl-3 pr-10 text-left text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-sm">
                 <span className="block truncate">

@@ -16,6 +16,7 @@ import {
   ResponsiveContainer,
   Legend
 } from 'recharts';
+import { useFirestoreUser } from '../../User_crud/users_crud';
 
 // Color palettes
 const KPI_COLORS = ['#FBBF24', '#EF4444', '#10B981', '#3B82F6'];
@@ -31,32 +32,40 @@ export default function Analyse() {
   const [avgOrderValue, setAvgOrderValue] = useState(0);
   const [topItems, setTopItems] = useState([]);
 
+  const { firebaseUser } = useFirestoreUser();
+  const adminId = firebaseUser?.uid;
   // Listen to valid orders for payment status
   useEffect(() => {
+    if (!adminId) return; // Prevent running query before adminId is available
+
     const q = query(
       collection(db, 'products_ordered'),
-      where('valid', '==', true)
+      where('valid', '==', true),
+      where('adminId', '==', adminId)
     );
+
     const unsub = onSnapshot(q, snapshot => {
       const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setAllValidOrders(docs);
     });
+
     return unsub;
-  }, []);
+  }, [adminId]); 
 
   // Listen to paid & valid orders for metrics
   useEffect(() => {
     const q = query(
       collection(db, 'products_ordered'),
       where('valid', '==', true),
-      where('payed', '==', true)
+      where('payed', '==', true),
+      where('adminId', '==', adminId)
     );
     const unsub = onSnapshot(q, snapshot => {
       const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setPaidOrders(docs);
     });
     return unsub;
-  }, []);
+  }, [adminId]);
 
   // Helper to parse Firestore timestamp or string
   const toDate = ts => (ts?.toDate ? ts.toDate() : new Date(ts));

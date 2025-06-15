@@ -11,7 +11,7 @@ export default function Navbar() {
 
   // Map of roles to nav items.
   const roleBasedNavItems = {
-    admin: ['kitchen', 'reception', 'supplier', 'owner']
+    // admin: ['owner']
   //   kitchen: ['kitchen'],
   //   reception: ['reception'],
   //   supplier: ['supplier'],
